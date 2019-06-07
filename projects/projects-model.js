@@ -23,12 +23,12 @@ function find() {
 }
 
 function findById(id) {
-    let query = db('projects as p');
+     let projects = db('projects');
 
   if (id) {
-    query.where('p.id', id).first();
+    projects.where('projects.id', id).first();
 
-    const promises = [query, Actions.findById(id)]; // [ projects, actions ] returning projects then actions in an array
+    const promises = [projects, Actions.findById(id)]; // [ projects, actions ] returning projects then actions in an array
 
     return Promise.all(promises).then(function(results) { //return all data
        let [project, actions] = results; //let results == array of data
