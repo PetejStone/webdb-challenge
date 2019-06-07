@@ -51,7 +51,7 @@ router.delete('/:id', validateActionId, async (req, res) => {
     })
  })
   
-router.put('/:id', validateActionId, validatePost, async (req, res) => { 
+router.put('/:id', validateActionId, async (req, res) => { 
     Actions.update(req.params.id, req.body)
     .then(action => {
         res.status(200).json({action})
@@ -74,17 +74,20 @@ router.put('/:id', validateActionId, validatePost, async (req, res) => {
   function validatePost(req, res, next) {
     const body = Object.keys(req.body);//converts object to array to get length
     const action = req.body;
-    if (action && action.notes || action.description) {
+    if (action && action.notes || action.project_id || action.description ) {
       next();
     }
     if (body.length <= 0)  {
-      res.status(400).json({message: 'missing Action data'})
+      res.status(400).json({message: 'missing action data'})
     }
     if ( !action.notes ) {
       res.status(400).json({message: 'missing required notes field'})
     }
     if ( !action.description ) {
-        res.status(400).json({message: 'missing required Action field'})
+      res.status(400).json({message: 'missing required desription field'})
+    }
+    if ( !action.project_id ) {
+        res.status(400).json({message: 'missing required project_id field'})
       }
   };
 

@@ -11,7 +11,7 @@ const knexConfig = {
 
 module.exports = {
      find,
-     findById,
+    findById,
      update,
      remove, 
      add
