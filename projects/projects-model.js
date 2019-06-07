@@ -7,7 +7,7 @@ const knexConfig = {
     useNullAsDefault: true
   }
   const db = knex(knexConfig)
-
+  const Actions = require('../actions/actions-model.js') //importing Actions for line 31
 
 module.exports = {
      find,
@@ -23,82 +23,26 @@ function find() {
 }
 
 function findById(id) {
-     
-    // const actions = db('actions')
-    // .join('projects', 'project.id', 'actions.project_id')
-    // .select('actions.id', 'actions.notes')
-    // .where('actions.project_id', id)
-       
-    // const projects = db('projects').where({id: id}).first()
-    //  .then(results => {
+    let query = db('projects as p');
 
-        // const actions = db('actions')
-        // .join('projects', 'projects.id', 'actions.project_id')
-        // .select( 'actions.id', 'actions.notes', 'actions.description')
-        // .where('actions.project_id', id) 
+  if (id) {
+    query.where('p.id', id).first();
 
-        //  db('projects').where({id: id})
-        // .join('actions', 'actions.project_id', 'projects.id')
-        // .select( 'project.id', 'project.name', 'project.description')
-        // .where('project.id', id) 
-       
-        //})
-        //return db('projects').first()
-       
-        //   .leftJoin('actions', 'projects.id', '=', 'actions.project_id')
-        //   //.select( 'projects.description')
-        //    .options({nestTables: true})
-        //    .then(results => results)
-        //    //.select('projects.id','projects.description', 'projects.complete')
-        //    //.select(['actions.notes'])
+    const promises = [query, Actions.findById(id)]; // [ projects, actions ] returning projects then actions in an array
 
-    //     var _ = require('underscore');
+    return Promise.all(promises).then(function(results) { //return all data
+       let [project, actions] = results; //let results == array of data
 
-    //    return db('projects').leftJoin("actions","projects.id", "=", "actions.project_id")
-    //     .then(function(data) {
-    //         return _.chain(data).groupBy(function(project) { return project.id; }).map(function(projects) {
-           
-    //           var project = _.chain(projects).first().pick('id', 'name', 'description', 'complete');
-    //           var actions = _.map(projects, function(actions) {
-    //              return { 'id': actions.id, 'description': actions.description, 'notes': actions.notes };
-    //           });
-    //           project.actions = actions;
+      if (project) { //if project data is found
+       project.actions = actions; //set actions key in projects = to actions table
 
-    //         return project 
-    //        }).value();
-        
-    //     });
-          
- 
-      
-    //return actions
+        return projectToBody(project); //pass project data to projectToBody Function to convert bool
+      } else {
+        return null;
+      }
+    });
+  }
 
-
-       // return db('projects').where({id: id}).first()
-       
-       
-        return db('actions').select([
-            'actions.id',
-            'actions.notes',
-            'actions.description',
-            'actions.complete',
-            //knex.raw('json_agg(a.*) as actions')
-        ])
-        .from('actions')
-       
-        .leftJoin('projects', 'projects.id', 'actions.project_id')
-        
-        .groupBy('projects.id'); 
-
-        // let allpost = knex
-        // .select([
-        //     'questions.id',
-        //     'question.content',
-        //     knex.raw('json_agg(v.*) as votes')
-        // ])
-        // .from('questions')
-        // .leftJoin('votes as v', 'questions.id', 'v.question_id')
-        // .groupBy('questions.id');
   
 }
 
@@ -117,3 +61,29 @@ function remove(id) {
 function add(body) {
     return db('projects').insert(body)
 }
+
+
+
+  
+  function intToBoolean(int) {  //converts boolean of 1 to true and 0 to false (string)
+    return int === 1 ? true : false;
+  }
+  
+
+  
+  function projectToBody(project) { // 
+    const result = {
+      ...project, //spear operator for al project data
+      complete: intToBoolean(project.complete), //pass project completed to boolean 
+    };
+  
+    if (project.actions) {
+      result.actions = project.actions.map(action => ({
+        ...action,
+        complete: intToBoolean(action.complete), // pass actions completed to boolean
+      }));
+    }
+  
+    return result;
+  }
+ 
