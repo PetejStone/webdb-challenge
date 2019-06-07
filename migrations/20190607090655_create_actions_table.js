@@ -15,9 +15,17 @@ exports.up = function(knex, Promise) {
       .unique()
 
       //complete column
-
       tbl.boolean('complete').defaultTo(false)
 
+      //foreign key
+      //foregin key table
+      tbl
+      .integer('project_id')
+      .unsigned()
+      .references('id')
+      .inTable('projects')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE')
   })
 };
 

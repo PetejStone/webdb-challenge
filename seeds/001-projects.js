@@ -6,13 +6,13 @@ exports.seed = function(knex, Promise) {
       // Inserts seed entries
       return knex('projects').insert([
         {name: 'Clean Room',
-        description: 'Pick up toys and make bed'},
+        description: 'Make room tidy'},
 
         {name: 'Mow Lawn',
-        description: 'Cut the front and back yard grass.'},
+        description: 'Make lawn look nice.'},
 
         {name: 'Cook Supper',
-         description: 'Make lasagna for dinner'}
+         description: 'Make dinner for 5 guests'}
       ]);
     });
 };
